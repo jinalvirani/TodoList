@@ -1,23 +1,38 @@
 const express = require('express');
 const route = express();
 
-const {TasksTb} = require('../Schemas/TaskMdl');
+const {TasksTb, SubTasksTb} = require('../Schemas/TaskMdl');
 
 const connection = require('../Middlewares/connection');
 const joiValidation = require('../Middlewares/joiValidation');
 
 //--------------Add Main task------
-route.get("/listTask",connection,(req,res) => {
-    TasksTb.find()
-    .then((tasks) => {
-        res.status(200).json(tasks);
-    })
-    .catch((finderr) => {
-        res.status(409).json(finderr);
-    });
+// route.get("/listTask",connection,(req,res) => {
+//     TasksTb.find()
+//     .then((tasks) => {
+//         res.status(200).json(tasks);
+//     })
+//     .catch((finderr) => {
+//         res.status(409).json(finderr);
+//     });
+// });
+
+route.get("/",connection,(req,res) => {
+    SubTasksTb.find()
+        .populate('TaskId',{'__v':0})
+        .exec((exeerr, tasks) => {
+            if(exeerr)
+            {
+                res.status(409).json(exeerr);
+            }
+            else
+            {
+                res.status(200).json(tasks);
+            }
+        });
 });
 
-route.post("/addTask",connection,joiValidation,(req,res) => {
+route.post("/",connection,joiValidation,(req,res) => {
     const Taskobj = new TasksTb({
         TaskName:req.body.TaskName,
         Status: req.body.Status,
@@ -31,13 +46,13 @@ route.post("/addTask",connection,joiValidation,(req,res) => {
     })
 });
 
-route.delete("/deleteTask/:id",connection,(req,res) => {
+route.delete("/:id",connection,(req,res) => {
     const taskId = req.params.id;
     if(taskId)
     {
         TasksTb.findByIdAndDelete({_id:taskId})
         .then((tasks) => {
-            res.status(200).json("deleted");  
+            res.status(200).json("Task Deleted");  
         })
         .catch((delerr) => {
             res.status(409).json("Id not found");
@@ -45,17 +60,17 @@ route.delete("/deleteTask/:id",connection,(req,res) => {
     }
     else
     {
-        res.status(404).json("req params empty");
+        res.status(404).json("Req params empty");
     }
 });
 
-route.patch("/updateTask/:id",connection,(req,res) => {
+route.patch("/:id",connection,(req,res) => {
     const taskId = req.params.id;
     if(taskId)
     {
         TasksTb.findByIdAndUpdate({_id:taskId},{$set:{Status:req.body.Status}})
         .then((tasks) => {
-            res.status(200).json("status Updated");  
+            res.status(200).json("Status Updated");  
         })
         .catch((updateerr) => {
             res.status(409).json("Id not found");
@@ -63,7 +78,7 @@ route.patch("/updateTask/:id",connection,(req,res) => {
     }
     else
     {
-        res.status(404).json("req params empty");
+        res.status(404).json("Req params empty");
     }
 });
 

@@ -8,7 +8,7 @@ const TaskSchema = mongoose.Schema({
 const TaskMdl = mongoose.model("taskstb",TaskSchema);
 
 const SubTaskSchema = mongoose.Schema({
-    TaskId: {type: mongoose.Schema.Types.ObjectId, ref: "tasktb"},
+    TaskId: {type: mongoose.Schema.Types.ObjectId, ref: 'taskstb'},
     SubTaskName: {type:String, require:true},
     Status: {type:String},
     CreatedTime: {type:Date, default: new Date()}
