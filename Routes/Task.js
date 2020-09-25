@@ -7,18 +7,24 @@ const connection = require('../Middlewares/connection');
 const joiValidation = require('../Middlewares/joiValidation');
 
 //--------------Add Main task------
-// route.get("/listTask",connection,(req,res) => {
-//     TasksTb.find()
-//     .then((tasks) => {
-//         res.status(200).json(tasks);
-//     })
-//     .catch((finderr) => {
-//         res.status(409).json(finderr);
-//     });
-// });
-
 route.get("/",connection,(req,res) => {
-    SubTasksTb.find()
+    SubTasksTb.find({},{'__v':0})
+        .populate('TaskId',{'__v':0})
+        .exec((exeerr, tasks) => {
+            if(exeerr)
+            {
+                res.status(409).json(exeerr);
+            }
+            else
+            {
+                res.status(200).json(tasks);
+            }
+        });
+});
+
+route.get("/search:createdtime",(req,res) => {
+    const createdtime = req.params.createdtime;
+    SubTasksTb.find({CreatedTime:createdtime},{'__v':0})
         .populate('TaskId',{'__v':0})
         .exec((exeerr, tasks) => {
             if(exeerr)
